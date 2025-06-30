@@ -10,7 +10,7 @@ Terraform을 활용한 해커톤용 AWS 인프라 자동화 구성입니다.
 ---
 
 ## 🛠️ 2. 적용 순서
-아래 순서대로 `terraform init` 및 `apply`를 실행해주세요:
+아래 순서대로 `terraform init` 및 `apply`를 실행해주세요.
 
 ```
 global → Dev 폴더 → vpc → ec2 → iam
@@ -20,7 +20,7 @@ global → Dev 폴더 → vpc → ec2 → iam
 ## 🖥️ 3. EC2 인스턴스 구성
 
 - **구조**: 1티어
-- **자동 설치 항목 (User Data)**:
+- **자동 설치 항목 (User Data)**
   - Apache
   - MySQL 8.0.42
 

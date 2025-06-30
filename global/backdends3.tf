@@ -14,7 +14,7 @@ provider "aws" {
 
 # AWS S3 Bucket 생성
 resource "aws_s3_bucket" "terraform_state" {
-  bucket ="ge-terraform-test-backend"
+  bucket ="ge-terraform-test-backend" # 이름 변경
   tags = {
     Name = "terraform_state"
   }
@@ -51,7 +51,7 @@ resource "aws_s3_bucket_versioning" "terraform_state_ver" {
 }
 
 resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "ge-test-terraform-bucket-lock"
+  name         = "ge-test-terraform-bucket-lock" # 이름 변경
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -63,7 +63,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
 # 로그 저장용 S3 버킷 생성
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = "ge-test-terraform-logs"
+  bucket = "ge-test-terraform-logs" # 이름 변경
 
   tags = {
     Name = "terraform_log_bucket"

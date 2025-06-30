@@ -6,7 +6,7 @@ data "terraform_remote_state" "vpc" {
 }
 
 locals {
-  instance_names = [for i in range(1, 11) : "ge-test${i}"] # 1부터 10까지의 인스턴스 이름 생성, 이름 및 range 값 조정 필요
+  instance_names = [for i in range(1, 5) : "ge-test${i}"] # 1부터 10까지의 인스턴스 이름 생성, 이름 변경 필요
 }
 
 # 1. TLS 키 생성 (개별 인스턴스용)
@@ -37,8 +37,10 @@ resource "local_file" "private_key" {
 
 # 4. 보안 그룹 (포트 22/80/443 오픈)
 resource "aws_security_group" "web_sg" {
-  name        = "ge-test-web-sg" # 보안 그룹 이름 변경
-  description = "Allow SSH/HTTP/HTTPS"
+  for_each = toset(local.instance_names)
+
+  name        = "${each.key}-sg"
+  description = "Allow SSH/HTTP for ${each.key}"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
   lifecycle {
@@ -59,6 +61,13 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+    ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -67,7 +76,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = {
-    Name = "web-sg"
+    Name = "${each.key}-sg"
   }
 }
 
@@ -76,11 +85,11 @@ resource "aws_instance" "web" {
   for_each = toset(local.instance_names)
 
   ami                         = "ami-03e38f46f79020a70" # Amazon Linux 2023 AMI (ap-northeast-2)
-  instance_type               = "t3.medium"
+  instance_type               = "t3.small"
   subnet_id                   = data.terraform_remote_state.vpc.outputs.public_subnet_id
   associate_public_ip_address = true
   key_name                    = aws_key_pair.keypair[each.key].key_name
-  vpc_security_group_ids      = [aws_security_group.web_sg.id]
+  vpc_security_group_ids      = [aws_security_group.web_sg[each.key].id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -102,4 +111,10 @@ resource "aws_instance" "web" {
   tags = {
     Name = each.key
   }
+}
+
+resource "aws_eip" "eip" {
+  for_each = toset(local.instance_names)
+
+  instance = aws_instance.web[each.key].id
 }

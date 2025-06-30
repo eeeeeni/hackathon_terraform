@@ -1,5 +1,5 @@
 locals {
-  usernames = [for i in range(1, 11) : "ge-testuser${i}"]
+  usernames = [for i in range(1, 61) : "ge-testuser${i}"]
 }
 
 # 1. IAM 사용자 생성
