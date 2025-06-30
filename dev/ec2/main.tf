@@ -41,6 +41,10 @@ resource "aws_security_group" "web_sg" {
   description = "Allow SSH/HTTP/HTTPS"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
+  lifecycle {
+      ignore_changes = [ingress, egress]
+  }
+
   ingress {
     from_port   = 22
     to_port     = 22
@@ -51,13 +55,6 @@ resource "aws_security_group" "web_sg" {
   ingress {
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 3306
-    to_port     = 3306
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -78,7 +75,7 @@ resource "aws_security_group" "web_sg" {
 resource "aws_instance" "web" {
   for_each = toset(local.instance_names)
 
-  ami                         = "ami-0c9c942bd7bf113a2" # web+db 포함된 1티어 이미지로 수정 필요
+  ami                         = "ami-03e38f46f79020a70" # Amazon Linux 2023 AMI (ap-northeast-2)
   instance_type               = "t3.medium"
   subnet_id                   = data.terraform_remote_state.vpc.outputs.public_subnet_id
   associate_public_ip_address = true
@@ -87,11 +84,19 @@ resource "aws_instance" "web" {
 
   user_data = <<-EOF
               #!/bin/bash
-              yum update -y
-              yum install -y httpd
-              systemctl enable httpd
-              systemctl start httpd
-              echo "Hello from ${each.key}" > /var/www/html/index.html
+                sudo dnf update -y
+
+              # Apache 설치 및 기동
+                sudo dnf install -y httpd
+                sudo systemctl enable httpd
+                sudo systemctl start httpd
+                echo "<h1>Hello from $(hostname)</h1>" | sudo tee /var/www/html/index.html
+
+              # MySQL 공식 저장소 등록 및 GPG 우회 설치
+                sudo dnf install -y https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
+                sudo dnf install -y mysql-community-server --nogpgcheck
+                sudo systemctl enable mysqld
+                sudo systemctl start mysqld
               EOF
 
   tags = {
