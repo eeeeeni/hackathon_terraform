@@ -20,9 +20,21 @@ global → Dev 폴더 → vpc → ec2 → iam
 ## 🖥️ 3. EC2 인스턴스 구성
 
 - **구조**: 1티어
-- **자동 설치 항목 (User Data)**
-  - Apache
+
+- **자동 설치 항목 (User Data)**  
+  아래 두 가지 구성 중 선택하여 사용 가능합니다.
+
+  ### ✅ 구성 1: Apache + MySQL
+  - Apache Web Server
   - MySQL 8.0.42
+  - 기본 HTML 경로: `/var/www/html/index.html`
+
+  ### ✅ 구성 2: Nginx + Tomcat + MySQL
+  - Nginx (리버스 프록시 적용)
+  - Tomcat 9.0.91
+  - MySQL 8.0.42
+  - 기본 Nginx 경로: `/usr/share/nginx/html/index.html`
+  - 기본 Tomcat 경로: `/opt/tomcat9/webapps/ROOT/index.jsp`
 
 ---
 
@@ -41,6 +53,16 @@ mysql -u root -p
 # 암호 변경
 ALTER USER 'root'@'localhost' IDENTIFIED BY '변경할 암호';
 ```
+
+# DB 및 사용자 계정 생성
+CREATE DATABASE hackathon;
+CREATE USER 'hackathon'@'localhost' IDENTIFIED BY 'hackathon';
+GRANT ALL PRIVILEGES ON hackathon.* TO 'hackathon'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+해당 설정은 hackathon이라는 DB와 전용 사용자 계정을 생성한 뒤, 해당 계정에 DB 전체 권한을 부여하고 이를 즉시 적용하는 설정입니다.
+사용자가 원하는 방향으로 해당 세팅을 진행할 수 있도록 가이드 해주세요!
 
 ---
 

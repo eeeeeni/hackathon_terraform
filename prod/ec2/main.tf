@@ -91,22 +91,71 @@ resource "aws_instance" "web" {
   key_name                    = aws_key_pair.keypair[each.key].key_name
   vpc_security_group_ids      = [aws_security_group.web_sg[each.key].id]
 
-  user_data = <<-EOF
-              #!/bin/bash
-                sudo dnf update -y
+  # #Apache와 MySQL 설치를 위한 사용자 데이터 스크립트
+  # user_data = <<-EOF
+  #             #!/bin/bash
+  #               sudo dnf update -y
 
-              # Apache 설치 및 기동
-                sudo dnf install -y httpd
-                sudo systemctl enable httpd
-                sudo systemctl start httpd
-                echo "<h1>Hello from $(hostname)</h1>" | sudo tee /var/www/html/index.html
+  #             # Apache 설치 및 기동
+  #               sudo dnf install -y httpd
+  #               sudo systemctl enable httpd
+  #               sudo systemctl start httpd
+  #               echo "<h1>Hello from $(hostname)</h1>" | sudo tee /var/www/html/index.html
 
-              # MySQL 공식 저장소 등록 및 GPG 우회 설치
-                sudo dnf install -y https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
-                sudo dnf install -y mysql-community-server --nogpgcheck
-                sudo systemctl enable mysqld
-                sudo systemctl start mysqld
-              EOF
+  #             # MySQL 공식 저장소 등록 및 GPG 우회 설치
+  #               sudo dnf install -y https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
+  #               sudo dnf install -y mysql-community-server --nogpgcheck
+  #               sudo systemctl enable mysqld
+  #               sudo systemctl start mysqld
+  #             EOF
+
+#   #Nginx / Tomcat / MySQL 설치를 위한 사용자 데이터 스크립트
+user_data = <<-EOF
+            #!/bin/bash
+
+            # 전체 업데이트
+            sudo dnf update -y
+
+            # Nginx 설치 및 실행
+            sudo dnf install -y nginx
+            sudo systemctl enable nginx
+            sudo systemctl start nginx
+
+            # Nginx 리버스 프록시 설정
+            cat <<NGINX | sudo tee /etc/nginx/conf.d/tomcat.conf
+            server {
+                listen 80;
+                server_name localhost;
+
+                location / {
+                    proxy_pass http://127.0.0.1:8080;
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                }
+            }
+            NGINX
+
+            # Nginx 설정 테스트 및 재시작
+            sudo nginx -t && sudo systemctl restart nginx
+
+            # Java 17 (Amazon Corretto) 설치
+            sudo dnf install -y java-17-amazon-corretto
+            java -version
+
+            # Tomcat 9.0.91 설치
+            cd /opt
+            sudo curl -O https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.91/bin/apache-tomcat-9.0.91.tar.gz
+            sudo tar -xvzf apache-tomcat-9.0.91.tar.gz
+            sudo mv apache-tomcat-9.0.91 tomcat9
+            sudo chmod +x /opt/tomcat9/bin/*.sh
+            sudo /opt/tomcat9/bin/startup.sh
+
+            # MySQL 저장소 등록 및 설치
+            sudo dnf install -y https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm
+            sudo dnf install -y mysql-community-server --nogpgcheck
+            sudo systemctl enable mysqld
+            sudo systemctl start mysqld
+            EOF
 
   tags = {
     Name = each.key
@@ -118,3 +167,5 @@ resource "aws_eip" "eip" {
 
   instance = aws_instance.web[each.key].id
 }
+
+
