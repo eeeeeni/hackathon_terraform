@@ -1,4 +1,4 @@
-<멋쟁이사자처럼 hackathon_terraform>
+# <멋쟁이사자처럼 hackathon_terraform>
 1. 먼저 AWS Configure를 통해 Terraform 전체 운영을 위한 관리자 계정을 등록해주세요.
 
 2. 순서대로 init 및 apply 진행해주세요.
@@ -8,13 +8,13 @@ global -> Dev 폴더 -> vpc -> ec2 -> iam
 mysql Ver: 8.0.42
 
 4. Myslq의 경우 설치시 root 계정에 임시 암호가 세팅되어 있으므로, 아래 명령어를 통해 인스턴스 접속 후 해당 암호를 변경해서 사용하도록 안내해주세요.
-    # 임시암호 확인 명령어
+    임시암호 확인 명령어
     sudo grep 'temporary password' /var/log/mysqld.log
 
-    # mysql 접속 명령어
+    mysql 접속 명령어
     mysql -u root -p
 
-    # 루트 암호 변경
+    루트 암호 변경
     ALTER USER 'root'@'localhost' IDENTIFIED BY '변경할 암호';
 
 5. iam의 경우 사용자 지정 암호 사용이 불가하며, 반드시 첫 로그인을 통해 임시 암호에서 사용자가 원하는 암호로 변경하도록 되어 있습니다.
