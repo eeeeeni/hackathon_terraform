@@ -6,7 +6,7 @@ data "terraform_remote_state" "vpc" {
 }
 
 locals {
-  instance_names = [for i in range(1, 5) : "ge-test${i}"] # 1부터 10까지의 인스턴스 이름 생성, 이름 변경 필요
+  instance_names = [for i in range(1, 61) : "ge-test${i}"] # 1부터 60까지 인스턴스 생성, 이름 변경 필요
 }
 
 # 1. TLS 키 생성 (개별 인스턴스용)

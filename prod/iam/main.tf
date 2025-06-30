@@ -1,5 +1,5 @@
 locals {
-  usernames = [for i in range(1, 61) : "ge-testuser${i}"]
+  usernames = [for i in range(1, 61) : "ge-testuser${i}"] # 1부터 60까지 유저 생성, 이름 변경 필요
 }
 
 # 1. IAM 사용자 생성
@@ -82,7 +82,7 @@ resource "aws_iam_user_login_profile" "login" {
   for_each = toset(local.usernames)
 
   user                    = aws_iam_user.users[each.key].name
-  password_length         = 20
+  password_length         = 15
   password_reset_required = true
 }
 
