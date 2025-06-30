@@ -52,7 +52,6 @@ mysql -u root -p
 
 # 암호 변경
 ALTER USER 'root'@'localhost' IDENTIFIED BY '변경할 암호';
-```
 
 # DB 및 사용자 계정 생성
 CREATE DATABASE hackathon;
