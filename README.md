@@ -1,25 +1,64 @@
-# <멋쟁이사자처럼 hackathon_terraform>
-1. 먼저 AWS Configure를 통해 Terraform 전체 운영을 위한 관리자 계정을 등록해주세요.
+# 🦁 멋쟁이사자처럼 hackathon_terraform
 
-2. 순서대로 init 및 apply 진행해주세요.
-global -> Dev 폴더 -> vpc -> ec2 -> iam
+Terraform을 활용한 해커톤용 AWS 인프라 자동화 구성입니다.
 
-3. 인스턴스는 1tier 구조로 유저 데이터를 통해 Apache와 Mysql가 자동 설치됩니다.
-mysql Ver: 8.0.42
+---
 
-4. Myslq의 경우 설치시 root 계정에 임시 암호가 세팅되어 있으므로, 아래 명령어를 통해 인스턴스 접속 후 해당 암호를 변경해서 사용하도록 안내해주세요.
-    임시암호 확인 명령어
-    sudo grep 'temporary password' /var/log/mysqld.log
+## ✅ 1. AWS CLI 설정
+먼저 `aws configure`를 통해 Terraform 전체 운영을 위한 관리자 계정을 등록해주세요.
 
-    mysql 접속 명령어
-    mysql -u root -p
+---
 
-    루트 암호 변경
-    ALTER USER 'root'@'localhost' IDENTIFIED BY '변경할 암호';
+## 🛠️ 2. 적용 순서
+아래 순서대로 `terraform init` 및 `apply`를 실행해주세요:
 
-5. iam의 경우 사용자 지정 암호 사용이 불가하며, 반드시 첫 로그인을 통해 임시 암호에서 사용자가 원하는 암호로 변경하도록 되어 있습니다.
-글로벌 서비스 사용 및 콘솔 로그인 암호 변경을 위해서는 버지니아 북부 리전의 사용이 활성화되어야 합니다.
-따라서 현재 리전 제한 정책은 서울 리전과 버지니아 북부를 제외한 모든 리전에서의 리소스 생성 및 확인, 삭제가 불가하도록 구성되어있습니다.
-참고해주세요!
+```
+global → Dev 폴더 → vpc → ec2 → iam
+```
+---
 
+## 🖥️ 3. EC2 인스턴스 구성
 
+- **구조**: 1티어
+- **자동 설치 항목 (User Data)**:
+  - Apache
+  - MySQL 8.0.42
+
+---
+
+## 🔐 4. MySQL 초기 설정 방법
+
+MySQL 설치 시 `root` 계정에 임시 암호가 설정됩니다.  
+인스턴스 접속 후 아래 절차에 따라 암호를 변경할 수 있도록 안내해주세요.
+
+```bash
+# 임시 비밀번호 확인
+sudo grep 'temporary password' /var/log/mysqld.log
+
+# MySQL 접속
+mysql -u root -p
+
+# 암호 변경
+ALTER USER 'root'@'localhost' IDENTIFIED BY '변경할 암호';
+```
+
+---
+
+## 👤 5. IAM 사용자 로그인 안내
+
+- 생성된 IAM 사용자는 **초기 로그인 시 비밀번호 변경이 필수**입니다.
+- 사용자가 임시 비밀번호로 로그인 후 **직접 비밀번호를 변경**해야 합니다.
+
+📌 **글로벌 서비스 사용 및 비밀번호 변경을 위해 `us-east-1`(버지니아 북부) 리전 허용이 필요합니다.**
+
+따라서 현재 설정된 정책은 다음과 같습니다.
+- ✅ **허용**: 서울 리전(ap-northeast-2), 버지니아 북부(us-east-1), 글로벌 서비스(Route53, IAM, CloudFront 등)
+- ❌ **차단**: 그 외 모든 리전에서의 리소스 생성, 확인, 삭제
+
+---
+
+## 📎 기타 참고사항
+- EC2 인스턴스에 연결할 `.pem` 키는 `keys/` 폴더에 자동 저장됩니다.
+- 각 사용자에 대한 로그인 정보는 `credentials/` 폴더에 별도 텍스트 파일로 저장됩니다.
+
+---
