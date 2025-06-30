@@ -58,11 +58,10 @@ CREATE DATABASE hackathon;
 CREATE USER 'hackathon'@'localhost' IDENTIFIED BY 'hackathon';
 GRANT ALL PRIVILEGES ON hackathon.* TO 'hackathon'@'localhost';
 FLUSH PRIVILEGES;
-```
 
-해당 설정은 hackathon이라는 DB와 전용 사용자 계정을 생성한 뒤, 해당 계정에 DB 전체 권한을 부여하고 이를 즉시 적용하는 설정입니다.
+=> 해당 설정은 hackathon이라는 DB와 전용 사용자 계정을 생성한 뒤, 해당 계정에 DB 전체 권한을 부여하고 이를 즉시 적용하는 설정입니다.
 사용자가 원하는 방향으로 해당 세팅을 진행할 수 있도록 가이드 해주세요!
-
+```
 ---
 
 ## 👤 5. IAM 사용자 로그인 안내
